@@ -2,10 +2,10 @@
 const firebaseConfig = {
   apiKey: "AIzaSyCLKTEWqgIszOJFdUZkOREKQtA72NFBBgY",
   authDomain: "tg-case-sim.firebaseapp.com",
-  databaseURL: "https://tg-case-sim-default-rtdb.europe-west1.firebasedatabase.app/",
   projectId: "tg-case-sim",
-  databaseURL: "https://tg-case-sim-default-rtdb.firebaseio.com/", // Добавили эту строку!
-  storageBucket: "tg-case-sim.appspot.com",
+  // Точный европейский адрес, который исправит ошибку из консоли:
+  databaseURL: "https://tg-case-sim-default-rtdb.europe-west1.firebasedatabase.app/",
+  storageBucket: "tg-case-sim.firebasestorage.app",
   messagingSenderId: "979070902558",
   appId: "1:979070902558:web:c0b6b9ee59a445e674290f"
 };
