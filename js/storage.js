@@ -2,7 +2,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyCLKTEWqgIszOJFdUZkOREKQtA72NFBBgY",
   authDomain: "tg-case-sim.firebaseapp.com",
-  databaseURL: "https://tg-case-sim-default-rtdb.europe-west1.firebasedatabase.app",
+  databaseURL: "https://tg-case-sim-default-rtdb.europe-west1.firebasedatabase.app/",
   projectId: "tg-case-sim",
   databaseURL: "https://tg-case-sim-default-rtdb.firebaseio.com/", // Добавили эту строку!
   storageBucket: "tg-case-sim.appspot.com",
