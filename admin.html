@@ -6,13 +6,27 @@
     <title>Панель управления — Админка</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="js/storage.js"></script>
+    <script>
+        if (!isCurrentUserAdmin()) {
+            document.documentElement.style.display = 'none';
+            window.location.href = 'index.html';
+        }
+    </script>
 </head>
 <body>
 
     <header>
-        <div class="logo">
-            <img src="https://i.ibb.co/spCV2YY2/Gemini-Generated-Image-f25pief25pief25p-removebg-preview.png" alt="Logo">
+        <div class="header-left">
+            <a href="index.html" class="logo-link">
+                <div class="logo">
+                    <img src="https://i.ibb.co/spCV2YY2/Gemini-Generated-Image-f25pief25pief25p-removebg-preview.png" alt="Logo">
+                </div>
+            </a>
+            
+            <div class="user-profile" id="userProfile"></div>
         </div>
+
         <nav>
             <a href="index.html">Главная</a>
             <a href="admin.html" class="active">Админка</a>
@@ -83,8 +97,7 @@
             
             <h3 style="margin-bottom: 15px; color: #888896; font-size: 14px; text-transform: uppercase;">Предметы внутри кейса</h3>
             
-            <div id="itemsContainer" style="overflow-x: auto;">
-                </div>
+            <div id="itemsContainer" style="overflow-x: auto;"></div>
 
             <div style="text-align: center; margin-top: 25px;">
                 <button class="btn btn-secondary" id="btnAddItem" style="width: 100%; border: 2px dashed #333; background: transparent; padding: 12px;">+ Добавить предмет</button>
@@ -97,7 +110,6 @@
         </div>
     </div>
 
-    <script src="js/storage.js"></script>
     <script src="js/admin.js"></script>
     <script>
         if (window.Telegram && window.Telegram.WebApp) {

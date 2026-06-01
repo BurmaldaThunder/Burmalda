@@ -10,9 +10,16 @@
 <body>
 
     <header>
-        <div class="logo">
-            <img src="https://i.ibb.co/spCV2YY2/Gemini-Generated-Image-f25pief25pief25p-removebg-preview.png" alt="Logo">
+        <div class="header-left">
+            <a href="index.html" class="logo-link">
+                <div class="logo">
+                    <img src="https://i.ibb.co/spCV2YY2/Gemini-Generated-Image-f25pief25pief25p-removebg-preview.png" alt="Logo">
+                </div>
+            </a>
+            
+            <div class="user-profile" id="userProfile"></div>
         </div>
+
         <nav>
             <a href="index.html">Главная</a>
             <a href="admin.html">Админка</a>
@@ -35,8 +42,7 @@
         </div>
 
         <h2 style="margin-bottom: 25px; font-size: 16px; color: #888896; text-transform: uppercase;">Содержимое кейса</h2>
-        <div class="cases-grid" id="caseItemsGrid">
-            </div>
+        <div class="cases-grid" id="caseItemsGrid"></div>
     </div>
 
     <div class="modal-overlay" id="winModal">
@@ -55,11 +61,9 @@
             document.getElementById('winModal').classList.remove('active');
         }
 
-        // Логика нативной кнопки Назад в Telegram
         if (window.Telegram && window.Telegram.WebApp) {
             const tg = window.Telegram.WebApp;
             tg.ready();
-            
             tg.BackButton.show();
             tg.BackButton.onClick(() => {
                 window.location.href = 'index.html';

@@ -27,13 +27,62 @@ body {
     overflow-x: hidden;
 }
 
+/* Обновленная разметка шапки */
 header {
     background: #101015;
-    padding: 15px 20px;
+    padding: 10px 15px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--border-color);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Отступ между логотипом и профилем */
+}
+
+.logo img {
+    height: 40px;
+    object-fit: contain;
+}
+
+.logo-link {
+    text-decoration: none;
+    display: inline-block;
+    line-height: 0;
+}
+
+/* Стили виджета профиля */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(28, 28, 36, 0.6);
+    padding: 4px 12px 4px 5px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.profile-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 5px var(--accent-glow);
+}
+
+.profile-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-main);
+    max-width: 90px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: none; /* Убираем капс, чтобы имя выглядело естественно */
 }
 
 .logo img {

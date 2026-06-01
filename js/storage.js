@@ -1,3 +1,37 @@
+// Конфигурация администратора
+const ADMIN_TG_ID = 8400713053; // <-- ЗАМЕНИ ЭТО ЧИСЛО НА СВОЙ TELEGRAM ID!
+
+// Функция для получения данных пользователя из Telegram
+function getTelegramUser() {
+    if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initDataUnsafe) {
+        return window.Telegram.WebApp.initDataUnsafe.user;
+    }
+    return null;
+}
+// Проверка, является ли текущий пользователь админом
+function isCurrentUserAdmin() {
+    const user = getTelegramUser();
+    
+    // Для тестов на ПК (если открываешь не в ТГ), временно возвращаем true. 
+    // Когда зальешь в ТГ, ПК-версия перестанет пускать посторонних.
+    if (!user) {
+        return true; // Смени на false, когда полностью закончишь тесты на ПК
+    }
+    
+    return user.id === ADMIN_TG_ID;
+}
+
+// Функция для адаптации шапки под роль пользователя
+function adaptHeaderNavigation() {
+    const adminLink = document.querySelector('nav a[href="admin.html"]');
+    if (adminLink && !isCurrentUserAdmin()) {
+        adminLink.remove(); // Удаляем кнопку админки для обычных пользователей
+    }
+}
+
+// Запускаем скрытие админки сразу при загрузке скрипта
+document.addEventListener('DOMContentLoaded', adaptHeaderNavigation);
+
 // Дефолтные данные, если LocalStorage пустой
 const defaultCases = [
     {
@@ -55,3 +89,65 @@ function getBannerSettings() {
 function saveBannerSettings(settings) {
     localStorage.setItem('banner_settings', JSON.stringify(settings));
 }
+
+// Функция для отрисовки профиля пользователя в шапке
+function renderUserProfile() {
+    const profileContainer = document.getElementById('userProfile');
+    if (!profileContainer) return;
+
+    const user = getTelegramUser();
+    
+    // Дефолтные данные (если открыто вне ТГ)
+    let name = "Gamer";
+    let avatarUrl = "https://placehold.co/100x100/1c1c24/ffc600?text=U";
+
+    // Если зашли через ТГ, берем реальные данные
+    if (user) {
+        name = user.first_name + (user.last_name ? ` ${user.last_name}` : '');
+        if (user.photo_url) {
+            avatarUrl = user.photo_url;
+        }
+    }
+
+    profileContainer.innerHTML = `
+        <img src="${avatarUrl}" alt="Avatar" class="profile-avatar">
+        <span class="profile-name">${name}</span>
+    `;
+}
+
+// Запускаем отрисовку профиля вместе со скрытием админки
+document.addEventListener('DOMContentLoaded', () => {
+    adaptHeaderNavigation();
+    renderUserProfile();
+});
+
+// Функция для отрисовки профиля пользователя в шапке
+function renderUserProfile() {
+    const profileContainer = document.getElementById('userProfile');
+    if (!profileContainer) return;
+
+    const user = getTelegramUser();
+    
+    // Дефолтные данные (если открыто вне ТГ)
+    let name = "Gamer";
+    let avatarUrl = "https://placehold.co/100x100/1c1c24/ffc600?text=U";
+
+    // Если зашли через ТГ, берем реальные данные
+    if (user) {
+        name = user.first_name + (user.last_name ? ` ${user.last_name}` : '');
+        if (user.photo_url) {
+            avatarUrl = user.photo_url;
+        }
+    }
+
+    profileContainer.innerHTML = `
+        <img src="${avatarUrl}" alt="Avatar" class="profile-avatar">
+        <span class="profile-name">${name}</span>
+    `;
+}
+
+// Запускаем отрисовку профиля вместе со скрытием админки
+document.addEventListener('DOMContentLoaded', () => {
+    adaptHeaderNavigation();
+    renderUserProfile();
+});

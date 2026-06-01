@@ -10,9 +10,16 @@
 <body>
 
     <header>
-        <div class="logo">
-            <img src="https://i.ibb.co/spCV2YY2/Gemini-Generated-Image-f25pief25pief25p-removebg-preview.png" alt="Logo">
+        <div class="header-left">
+            <a href="index.html" class="logo-link">
+                <div class="logo">
+                    <img src="https://i.ibb.co/spCV2YY2/Gemini-Generated-Image-f25pief25pief25p-removebg-preview.png" alt="Logo">
+                </div>
+            </a>
+            
+            <div class="user-profile" id="userProfile"></div>
         </div>
+
         <nav>
             <a href="index.html" class="active">Главная</a>
             <a href="admin.html">Админка</a>
@@ -23,17 +30,15 @@
         <div id="bannerContainer"></div>
 
         <h2 style="margin-bottom: 30px; text-transform: uppercase; font-size: 18px;">Доступные кейсы</h2>
-        <div class="cases-grid" id="casesGrid">
-            </div>
+        <div class="cases-grid" id="casesGrid"></div>
     </div>
 
     <script src="js/storage.js"></script>
     <script src="js/index.js"></script>
     <script>
-        // Сообщаем Telegram, что приложение готово
         if (window.Telegram && window.Telegram.WebApp) {
             window.Telegram.WebApp.ready();
-            window.Telegram.WebApp.expand(); // Расширяем на весь экран
+            window.Telegram.WebApp.expand();
         }
     </script>
 </body>
