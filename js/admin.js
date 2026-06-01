@@ -1,213 +1,181 @@
+let selectedCaseId = null;
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Элементы управления баннером
-    const bannerShow = document.getElementById('bannerShow');
-    const bannerTitle = document.getElementById('bannerTitle');
-    const bannerText = document.getElementById('bannerText');
-    const bannerBtnText = document.getElementById('bannerBtnText');
-    const bannerLink = document.getElementById('bannerLink');
-    const bannerImage = document.getElementById('bannerImage');
-    const btnSaveBanner = document.getElementById('btnSaveBanner');
-    const bannerFormInputs = document.getElementById('bannerFormInputs');
+    // Проверка: если не админ, код дальше не пойдет (обработка на самой странице)
+    if (typeof isCurrentUserAdmin === 'function' && !isCurrentUserAdmin()) return;
 
-    // Элементы управления кейсами
-    const caseSelector = document.getElementById('caseSelector');
-    const editorSection = document.getElementById('editorSection');
-    const editorTitle = document.getElementById('editorTitle');
-    const editCaseName = document.getElementById('editCaseName');
-    const editCasePrice = document.getElementById('editCasePrice');
-    const editCaseImage = document.getElementById('editCaseImage');
-    const itemsContainer = document.getElementById('itemsContainer');
-    const btnAddItem = document.getElementById('btnAddItem');
-    const btnSaveCase = document.getElementById('btnSaveCase');
-    const btnCreateNew = document.getElementById('btnCreateNew');
-    const btnDeleteCase = document.getElementById('btnDeleteCase');
-
-    let cases = getCases();
-    let currentEditingCase = null;
-    let isNewCase = false;
-
-    // --- Логика баннера ---
-    const currentBanner = getBannerSettings();
-    if (currentBanner) {
-        bannerShow.checked = currentBanner.show;
-        bannerTitle.value = currentBanner.title;
-        bannerText.value = currentBanner.text;
-        bannerBtnText.value = currentBanner.buttonText;
-        bannerLink.value = currentBanner.link;
-        bannerImage.value = currentBanner.image;
-    }
-
-    bannerShow.addEventListener('change', () => {
-        bannerFormInputs.style.opacity = bannerShow.checked ? "1" : "0.4";
-    });
-    bannerFormInputs.style.opacity = bannerShow.checked ? "1" : "0.4";
-
-    btnSaveBanner.addEventListener('click', () => {
-        const updatedBanner = {
-            show: bannerShow.checked,
-            title: bannerTitle.value.trim() || "Заголовок",
-            text: bannerText.value.trim() || "Описание",
-            buttonText: bannerBtnText.value.trim() || "Подробнее",
-            link: bannerLink.value.trim() || "#",
-            image: bannerImage.value.trim()
-        };
-        saveBannerSettings(updatedBanner);
-        alert('Настройки баннера сохранены!');
+    // Инициализация формы баннера данными из Firebase
+    getBannerFromServer((bannerData) => {
+        if (!bannerData) return;
+        document.getElementById('bannerShow').checked = !!bannerData.show;
+        document.getElementById('bannerTitle').value = bannerData.title || '';
+        document.getElementById('bannerText').value = bannerData.text || '';
+        document.getElementById('bannerBtnText').value = bannerData.btnText || '';
+        document.getElementById('bannerLink').value = bannerData.link || '';
+        document.getElementById('bannerImage').value = bannerData.image || '';
     });
 
+    // Инициализация выпадающего списка кейсов
+    db.ref('cases').on('value', (snapshot) => {
+        const selector = document.getElementById('caseSelector');
+        if (!selector) return;
 
-    // --- Логика кейсов ---
-    function initSelector() {
-        caseSelector.innerHTML = '<option value="">-- Выберите кейс для редактирования --</option>';
-        cases.forEach(c => {
-            const opt = document.createElement('option');
-            opt.value = c.id;
-            opt.innerText = `${c.name} (${c.price} $)`;
-            caseSelector.appendChild(opt);
-        });
-    }
-
-    caseSelector.addEventListener('change', (e) => {
-        const id = e.target.value;
-        if (!id) {
-            editorSection.style.display = 'none';
-            return;
-        }
-        isNewCase = false;
-        currentEditingCase = cases.find(c => c.id === parseInt(id));
-        if (currentEditingCase) {
-            loadCaseToEditor(currentEditingCase);
-        }
-    });
-
-    btnCreateNew.addEventListener('click', () => {
-        isNewCase = true;
-        caseSelector.value = "";
-        currentEditingCase = {
-            id: Date.now(),
-            name: '',
-            price: 10,
-            image: '',
-            items: []
-        };
-        editorTitle.innerText = "Создание нового кейса";
-        editCaseName.value = '';
-        editCasePrice.value = 10;
-        editCaseImage.value = '';
-        itemsContainer.innerHTML = '';
-        editorSection.style.display = 'block';
-        addItemRow();
-    });
-
-    function loadCaseToEditor(c) {
-        editorTitle.innerText = `Редактирование кейса: ${c.name}`;
-        editCaseName.value = c.name;
-        editCasePrice.value = c.price;
-        editCaseImage.value = c.image;
-        itemsContainer.innerHTML = '';
-        c.items.forEach(item => {
-            addItemRow(item.name, item.chance, item.image, item.rarity);
-        });
-        editorSection.style.display = 'block';
-    }
-
-    function addItemRow(name = '', chance = '', image = '', rarity = 'common') {
-        const row = document.createElement('div');
-        row.className = 'admin-item-row';
-        row.innerHTML = `
-            <input type="text" placeholder="Название предмета" class="item-name" value="${name}">
-            <input type="number" step="0.01" placeholder="Шанс %" class="item-chance" value="${chance}">
-            <input type="text" placeholder="URL картинки" class="item-image" value="${image}">
-            <select class="item-rarity">
-                <option value="common" ${rarity === 'common' ? 'selected' : ''}>Common</option>
-                <option value="rare" ${rarity === 'rare' ? 'selected' : ''}>Rare</option>
-                <option value="epic" ${rarity === 'epic' ? 'selected' : ''}>Epic</option>
-                <option value="legendary" ${rarity === 'legendary' ? 'selected' : ''}>Legendary</option>
-                <option value="knife" ${rarity === 'knife' ? 'selected' : ''}>Knife</option>
-            </select>
-            <button class="btn btn-danger btn-remove" style="padding: 10px 15px; border-radius: 8px;">X</button>
-        `;
-
-        row.querySelector('.btn-remove').addEventListener('click', () => {
-            row.remove();
-        });
-
-        itemsContainer.appendChild(row);
-    }
-
-    btnAddItem.addEventListener('click', () => addItemRow());
-
-    btnDeleteCase.addEventListener('click', () => {
-        if (isNewCase) {
-            editorSection.style.display = 'none';
-            return;
-        }
-        if (confirm(`Удалить кейс "${currentEditingCase.name}"?`)) {
-            cases = cases.filter(c => c.id !== currentEditingCase.id);
-            saveCases(cases);
-            alert('Кейс удален!');
-            initSelector();
-            editorSection.style.display = 'none';
-        }
-    });
-
-    btnSaveCase.addEventListener('click', () => {
-        if (!currentEditingCase) return;
-
-        const nameVal = editCaseName.value.trim();
-        const priceVal = parseInt(editCasePrice.value) || 0;
-        const imageVal = editCaseImage.value.trim();
-
-        if (!nameVal) {
-            alert('Заполните название кейса!');
-            return;
-        }
-
-        currentEditingCase.name = nameVal;
-        currentEditingCase.price = priceVal;
-        currentEditingCase.image = imageVal;
+        selector.innerHTML = '<option value="">-- Выберите кейс для редактирования --</option>';
+        const data = snapshot.val() || {};
         
-        const rows = itemsContainer.querySelectorAll('.admin-item-row');
-        const updatedItems = [];
-        let totalChance = 0;
+        Object.keys(data).forEach(key => {
+            const option = document.createElement('option');
+            option.value = key;
+            option.text = data[key].name || key;
+            selector.appendChild(option);
+        });
 
+        if (selectedCaseId) {
+            selector.value = selectedCaseId;
+        }
+    });
+
+    // Обработчик выбора кейса в селекторе
+    document.getElementById('caseSelector').addEventListener('change', (e) => {
+        loadCaseToEditor(e.target.value);
+    });
+
+    // Кнопка сохранения баннера
+    document.getElementById('btnSaveBanner').addEventListener('click', () => {
+        const bannerData = {
+            show: document.getElementById('bannerShow').checked,
+            title: document.getElementById('bannerTitle').value,
+            text: document.getElementById('bannerText').value,
+            btnText: document.getElementById('bannerBtnText').value,
+            link: document.getElementById('bannerLink').value,
+            image: document.getElementById('bannerImage').value
+        };
+        saveBannerToServer(bannerData);
+        alert('Рекламный баннер обновлен у всех пользователей!');
+    });
+
+    // Кнопка "Создать новый кейс"
+    document.getElementById('btnCreateNew').addEventListener('click', () => {
+        const newId = 'case_' + Date.now();
+        const newCase = {
+            name: "Новый кейс",
+            price: 100,
+            image: "",
+            items: [{ name: "Предмет 1", chance: 100, rarity: "common", image: "" }]
+        };
+        saveCaseToServer(newId, newCase, () => {
+            selectedCaseId = newId;
+            loadCaseToEditor(newId);
+        });
+    });
+
+    // Кнопка "Добавить предмет" внутрь кейса
+    document.getElementById('btnAddItem').addEventListener('click', () => {
+        addItemRow('', 0, 'common', '');
+    });
+
+    // Кнопка "Сохранить кейс"
+    document.getElementById('btnSaveCase').addEventListener('click', () => {
+        if (!selectedCaseId) return;
+
+        const items = [];
+        const rows = document.querySelectorAll('.admin-item-row');
+        
         rows.forEach(row => {
-            const chanceVal = parseFloat(row.querySelector('.item-chance').value) || 0;
-            totalChance += chanceVal;
-
-            updatedItems.push({
-                name: row.querySelector('.item-name').value.trim() || 'Предмет',
-                chance: chanceVal,
-                image: row.querySelector('.item-image').value.trim(),
-                rarity: row.querySelector('.item-rarity').value
+            items.push({
+                name: row.querySelector('.item-name').value,
+                chance: parseFloat(row.querySelector('.item-chance').value) || 0,
+                rarity: row.querySelector('.item-rarity').value,
+                image: row.querySelector('.item-img').value
             });
         });
 
-        if (updatedItems.length === 0) {
-            alert('Добавьте хотя бы один предмет!');
-            return;
-        }
+        const caseData = {
+            name: document.getElementById('editCaseName').value,
+            price: parseInt(document.getElementById('editCasePrice').value) || 0,
+            image: document.getElementById('editCaseImage').value,
+            items: items
+        };
 
-        if (Math.abs(totalChance - 100) > 0.02) {
-            if (!confirm(`Сумма шансов: ${totalChance.toFixed(2)}% (не 100%). Сохранить всё равно?`)) {
-                return;
-            }
-        }
-
-        currentEditingCase.items = updatedItems;
-        
-        if (isNewCase) {
-            cases.push(currentEditingCase);
-        } else {
-            cases = cases.map(c => c.id === currentEditingCase.id ? currentEditingCase : c);
-        }
-        
-        saveCases(cases);
-        alert('Кейс успешно сохранен!');
-        isNewCase = false;
-        initSelector();
-        editorSection.style.display = 'none';
+        saveCaseToServer(selectedCaseId, caseData, () => {
+            alert('Кейс успешно сохранен на сервере!');
+        });
     });
 
-    initSelector();
+    // Кнопка "Удалить кейс"
+    document.getElementById('btnDeleteCase').addEventListener('click', () => {
+        if (!selectedCaseId) return;
+        if (confirm('Вы уверены, что хотите полностью удалить этот кейс?')) {
+            deleteCaseFromServer(selectedCaseId, () => {
+                document.getElementById('editorSection').style.display = 'none';
+                selectedCaseId = null;
+                alert('Кейс удален.');
+            });
+        }
+    });
 });
+
+// Загрузка кейса в форму редактора
+function loadCaseToEditor(caseId) {
+    selectedCaseId = caseId;
+    const editor = document.getElementById('editorSection');
+    
+    if (!caseId) {
+        editor.style.display = 'none';
+        return;
+    }
+
+    db.ref('cases/' + caseId).once('value').then((snapshot) => {
+        const c = snapshot.val();
+        if (!c) return;
+
+        document.getElementById('editorTitle').innerText = `Редактирование: ${c.name}`;
+        document.getElementById('editCaseName').value = c.name || '';
+        document.getElementById('editCasePrice').value = c.price || 0;
+        document.getElementById('editCaseImage').value = c.image || '';
+
+        const container = document.getElementById('itemsContainer');
+        container.innerHTML = '';
+
+        if (c.items && c.items.length > 0) {
+            c.items.forEach(item => {
+                addItemRow(item.name, item.chance, item.rarity, item.image);
+            });
+        }
+        editor.style.display = 'block';
+    });
+}
+
+// Добавление строки предмета (как на макете рисунка)
+function addItemRow(name = '', chance = '', rarity = 'common', img = '') {
+    const container = document.getElementById('itemsContainer');
+    const row = document.createElement('div');
+    row.className = 'admin-item-row';
+    
+    row.innerHTML = `
+        <div class="form-group" style="margin:0;">
+            <label>ПРЕДМЕТ</label>
+            <input type="text" class="item-name" value="${name}" placeholder="Название скина">
+        </div>
+        <div class="form-group" style="margin:0;">
+            <label>ШАНС (%)</label>
+            <input type="number" class="item-chance" value="${chance}" placeholder="Например: 1.5" step="0.001">
+        </div>
+        <div class="form-group" style="margin:0;">
+            <label>ИЗОБРАЖЕНИЕ URL</label>
+            <input type="text" class="item-img" value="${img}" placeholder="https://...">
+        </div>
+        <div class="form-group" style="margin:0;">
+            <label>РЕДКОСТЬ</label>
+            <select class="item-rarity">
+                <option value="common" ${rarity === 'common' ? 'selected' : ''}>Common (Серое)</option>
+                <option value="rare" ${rarity === 'rare' ? 'selected' : ''}>Rare (Синее)</option>
+                <option value="epic" ${rarity === 'epic' ? 'selected' : ''}>Epic (Фиолетовое)</option>
+                <option value="legendary" ${rarity === 'legendary' ? 'selected' : ''}>Legendary (Розовое)</option>
+                <option value="knife" ${rarity === 'knife' ? 'selected' : ''}>Knife/Glove (Золотое)</option>
+            </select>
+        </div>
+        <button class="btn btn-danger" style="align-self: flex-end; padding: 10px;" onclick="this.parentElement.remove()">❌</button>
+    `;
+    container.appendChild(row);
+}
