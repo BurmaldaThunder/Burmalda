@@ -52,11 +52,20 @@ function renderCaseItems(items) {
     });
 }
 
+// Генерация стартовой ленты со СБРОСОМ анимации
 function generateTape(items) {
     const tape = document.getElementById('rouletteTape');
     if (!tape || items.length === 0) return;
 
+    // КРИТИЧЕСКИ ВАЖНО: полностью отключаем анимацию перед перестроением ленты
+    tape.style.transition = 'none';
+    tape.style.left = '0px';
+    
+    // Форсируем перерисовку браузером, чтобы сброс стилей применился мгновенно
+    void tape.offsetWidth; 
+
     tape.innerHTML = '';
+    // Генерируем 55 карточек
     for (let i = 0; i < 55; i++) {
         const randomItem = items[Math.floor(Math.random() * items.length)];
         const el = document.createElement('div');
@@ -67,11 +76,8 @@ function generateTape(items) {
         `;
         tape.appendChild(el);
     }
-    tape.style.transition = 'none';
-    tape.style.left = '0px';
 }
 
-// --- ПОЛНОСТЬЮ СТАТИЧНАЯ И ИСПРАВЛЕННАЯ ЛОГИКА КРУЧЕНИЯ ---
 function startRoulette() {
     if (isRolling || !currentCase || !currentCase.items || currentCase.items.length === 0) return;
     isRolling = true;
@@ -82,47 +88,52 @@ function startRoulette() {
 
     const tape = document.getElementById('rouletteTape');
     const nodes = tape.children;
-    const targetIndex = 45; // Индекс ячейки с победителем
-
-    // ХАК ДЛЯ СБРОСА: Мгновенно убираем любые анимации и возвращаем ленту в начало
-    tape.style.transition = 'none';
-    tape.style.left = '0px';
-
-    // Вставляем победителя строго на 45-е место
+    const targetIndex = 45; // Победная ячейка в ленте
+    
+    // Вставляем победителя на его законное 45-е место
     nodes[targetIndex].className = `roulette-item rarity-${winner.rarity || 'common'}`;
     nodes[targetIndex].innerHTML = `
         <img src="${winner.image || ''}" alt="Weapon" onerror="this.onerror=null; this.src='https://placehold.co/100x70/1c1c24/ffc600?text=WEAPON';">
         <div class="name">${winner.name}</div>
     `;
 
-    // Считаем точные координаты
+    // Вычисляем точные координаты
     const wrapperWidth = document.querySelector('.roulette-wrapper').offsetWidth;
     const centerOffset = wrapperWidth / 2 - ITEM_WIDTH / 2;
     const baseLeft = -(targetIndex * ITEM_WIDTH) + centerOffset;
 
-    // Смещение внутри карточки (микро-сдвиг для реализма)
-    const microShift = Math.floor(Math.random() * 40) - 20; // от -20px до +20px
+    // Делаем легкий микро-сдвиг от центра (-15px до +15px), чтобы стрелка не вставала идеально пиксель в пиксель
+    const microShift = Math.floor(Math.random() * 30) - 15; 
 
-    // Запускаем анимацию через requestAnimationFrame, чтобы браузер успел применить сброс в 0px
-    requestAnimationFrame(() => {
-        setTimeout(() => {
-            tape.style.transition = 'left 3.5s cubic-bezier(0.1, 0.6, 0.1, 1)'; 
-            tape.style.left = (baseLeft + microShift) + 'px';
-        }, 20); // Микропауза, чтобы сброс сработал на 100%
-    });
+    // Сначала сбрасываем стили на старт прокрутки
+    tape.style.transition = 'none';
+    tape.style.left = '0px';
+    void tape.offsetWidth; // Триггер перерисовки
 
-    // Шаг 2: Плавное доведение строго в центр предмета
+    // Шаг 1: Основной запуск прокрутки (с микро-сдвигом для реализма)
+    tape.style.transition = 'left 3.5s cubic-bezier(0.1, 0.6, 0.1, 1)'; 
+    tape.style.left = (baseLeft + microShift) + 'px';
+
+    // Шаг 2: Плавное докручивание/выравнивание ровно по центру предмета
     setTimeout(() => {
-        tape.style.transition = 'left 0.6s cubic-bezier(0.25, 1, 0.5, 1)'; // Мягкое скольжение к центру
+        // Заменяем анимацию на мягкий доводчик и убираем microShift
+        tape.style.transition = 'left 0.4s ease-in-out';
         tape.style.left = baseLeft + 'px';
     }, 3500); 
 
-    // Шаг 3: Показ модалки
+    // Шаг 3: Финал, открытие модалки и чистый сброс состояния
     setTimeout(() => {
         document.getElementById('winItemImage').src = winner.image || 'https://placehold.co/100x70/1c1c24/ffc600?text=WEAPON';
         document.getElementById('winItemName').innerText = winner.name;
         document.getElementById('winModal').classList.add('active');
-    }, 4200); 
+
+        // Обработчик закрытия модалки (сбрасываем ленту только ПОСЛЕ закрытия или готовности к новому кручению)
+        isRolling = false;
+        document.getElementById('btnOpen').disabled = false;
+        
+        // Перегенерируем ленту на месте, чтобы подготовить к следующему открытию
+        generateTape(items);
+    }, 4000); // 3.5с + 0.4с + 0.1с запас на остановку
 }
 
 function getWeightedRandomItem(items) {
