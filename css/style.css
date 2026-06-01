@@ -254,10 +254,13 @@ h1, h2, h3 {
     object-fit: contain;
 }
 
+/* Контейнер-обертка рулетки */
 .roulette-wrapper {
     position: relative;
-    width: 100%; /* Или фиксированная ширина, главное — overflow: hidden */
+    width: 100%;
     overflow: hidden;
+    background: #111116; /* Твой цвет фона */
+    padding: 10px 0;
 }
 
 .roulette-marker {
@@ -272,21 +275,24 @@ h1, h2, h3 {
     box-shadow: 0 0 10px var(--accent);
 }
 
-.roulette-tape {
-    display: flex;
-    position: absolute;
+/* Сама движущаяся лента */
+#rouletteTape {
+    position: relative;
+    display: flex !important; /* Включаем флекс */
+    flex-direction: row;
+    gap: 8px !important; /* Фиксированный зазор между пушками */
     left: 0;
-    top: 0;
-    height: 100%;
-    align-items: center;
+    width: max-content; /* Чтобы лента не сжималась */
 }
 
+/* Карточка предмета внутри рулетки */
 .roulette-item {
-    width: 120px !important;
+    width: 120px !important; /* Чистая ширина карточки */
     min-width: 120px !important;
-    margin: 0 4px !important; /* В сумме дает 120 + 4 + 4 = 128px */
+    max-width: 120px !important;
+    /* МАРДЖИНЫ ТУТ СТРОГО ЗАПРЕЩЕНЫ, за них теперь отвечает gap: 8px выше! */
+    margin: 0 !important; 
     box-sizing: border-box;
-    display: inline-block;
     text-align: center;
 }
 
