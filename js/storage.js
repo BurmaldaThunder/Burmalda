@@ -10,7 +10,7 @@ const firebaseConfig = {
 };
 
 // Твой Telegram ID для админки
-const ADMIN_TG_ID = 123456789; 
+const ADMIN_TG_ID = 8400713053; 
 
 // Инициализируем Firebase (скрипты подключены в HTML)
 firebase.initializeApp(firebaseConfig);
