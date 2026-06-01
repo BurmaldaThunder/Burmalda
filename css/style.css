@@ -285,21 +285,30 @@ h1, h2, h3 {
     width: max-content; /* Чтобы лента не сжималась */
 }
 
-/* Карточка предмета внутри рулетки */
+/* Карточка предмета внутри рулетки с закруглением */
 .roulette-item {
     width: 120px !important; /* Чистая ширина карточки */
     min-width: 120px !important;
     max-width: 120px !important;
-    /* МАРДЖИНЫ ТУТ СТРОГО ЗАПРЕЩЕНЫ, за них теперь отвечает gap: 8px выше! */
-    margin: 0 !important; 
+    margin: 0 !important; /* Отступы запрещены, за них отвечает gap в #rouletteTape */
     box-sizing: border-box;
     text-align: center;
+    
+    /* ВОЗВРАЩАЕМ ЗАКРУГЛЕНИЕ УГЛОВ */
+    border-radius: 12px !important; 
+    overflow: hidden; /* Чтобы картинка внутри карточки не вылезала за скругленные края */
+    
+    /* Если у тебя внутри карточек есть фон, можно его тоже подкрасить, например: */
+    background: #14141c; 
+    border: 1px solid #22222a;
 }
 
+/* На всякий случай, чтобы картинка внутри тоже красиво ложилась */
 .roulette-item img {
-    width: 70px;
-    height: 55px;
-    object-fit: contain;
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px; /* Чуть меньший радиус для самой картинки внутри */
+    padding: 5px;
 }
 
 .roulette-item .name {
