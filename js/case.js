@@ -1,9 +1,8 @@
-const ITEM_WIDTH = 128; // Ширина карточки рулетки (120px + 8px отступы) с учётом мобилок
+const ITEM_WIDTH = 128; // Ширина карточки рулетки (120px + 8px отступы)
 let currentCase = null;
 let isRolling = false;
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Получаем ID кейса из URL параметров
     const params = new URLSearchParams(window.location.search);
     const caseId = params.get('id');
 
@@ -12,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    // Загружаем данные этого кейса из Firebase
+    // Загружаем данные кейса из Firebase
     db.ref('cases/' + caseId).on('value', (snapshot) => {
         currentCase = snapshot.val();
         if (!currentCase) {
@@ -20,28 +19,22 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Заполняем интерфейс
         document.getElementById('caseName').innerText = currentCase.name;
         document.getElementById('caseImage').src = currentCase.image || 'https://placehold.co/150x110?text=Case';
         
         const btnOpen = document.getElementById('btnOpen');
         if (btnOpen) btnOpen.innerText = `Открыть кейс (${currentCase.price} $)`;
 
-        // Отрисовываем содержимое под рулеткой
         renderCaseItems(currentCase.items || []);
-        
-        // Генерируем стартовую ленту рулетки
         generateTape(currentCase.items || []);
     });
 
-    // Вешаем событие на кнопку открытия
     const btnOpen = document.getElementById('btnOpen');
     if (btnOpen) {
         btnOpen.addEventListener('click', startRoulette);
     }
 });
 
-// Отрисовка предметов под рулеткой
 function renderCaseItems(items) {
     const grid = document.getElementById('caseItemsGrid');
     if (!grid) return;
@@ -52,26 +45,24 @@ function renderCaseItems(items) {
         card.className = `item-card rarity-${item.rarity || 'common'}`;
         card.innerHTML = `
             <span class="chance">${item.chance}%</span>
-            <img src="${item.image || 'https://placehold.co/100x70?text=Weapon'}" alt="${item.name}">
+            <img src="${item.image || ''}" alt="${item.name}" onerror="this.onerror=null; this.src='https://placehold.co/100x70/1c1c24/ffc600?text=WEAPON';">
             <div style="font-size: 12px; font-weight: 700; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</div>
         `;
         grid.appendChild(card);
     });
 }
 
-// Генерация случайных предметов на ленте
 function generateTape(items) {
     const tape = document.getElementById('rouletteTape');
     if (!tape || items.length === 0) return;
 
     tape.innerHTML = '';
-    // Создаем длинную ленту из ~50 предметов для эффекта прокрутки
     for (let i = 0; i < 55; i++) {
         const randomItem = items[Math.floor(Math.random() * items.length)];
         const el = document.createElement('div');
         el.className = `roulette-item rarity-${randomItem.rarity || 'common'}`;
         el.innerHTML = `
-            <img src="${randomItem.image || 'https://placehold.co/100x70?text=Weapon'}" alt="Weapon">
+            <img src="${randomItem.image || ''}" alt="Weapon" onerror="this.onerror=null; this.src='https://placehold.co/100x70/1c1c24/ffc600?text=WEAPON';">
             <div class="name">${randomItem.name}</div>
         `;
         tape.appendChild(el);
@@ -80,55 +71,55 @@ function generateTape(items) {
     tape.style.left = '0px';
 }
 
-// Логика кручения
+// --- ОБНОВЛЕННАЯ ЛОГИКА КРУЧЕНИЯ И ЦЕНТРИРОВАНИЯ ---
 function startRoulette() {
     if (isRolling || !currentCase || !currentCase.items || currentCase.items.length === 0) return;
     isRolling = true;
     document.getElementById('btnOpen').disabled = true;
 
     const items = currentCase.items;
-    
-    // Выбираем победителя по весу (шансам)
     const winner = getWeightedRandomItem(items);
 
-    // Перерендериваем ленту, вставляя победителя ровно на 45-ю позицию
     const tape = document.getElementById('rouletteTape');
     const nodes = tape.children;
+    const targetIndex = 45; // Ячейка-победитель
     
-    const targetIndex = 45; // Индекс ячейки, на которой остановится маркер
-    
-    // Заменяем 45-й элемент на нашего реального победителя
+    // Вставляем нашего победителя строго на 45-е место в ленте
     nodes[targetIndex].className = `roulette-item rarity-${winner.rarity || 'common'}`;
     nodes[targetIndex].innerHTML = `
-        <img src="${winner.image || 'https://placehold.co/100x70?text=Weapon'}" alt="Weapon">
+        <img src="${winner.image || ''}" alt="Weapon" onerror="this.onerror=null; this.src='https://placehold.co/100x70/1c1c24/ffc600?text=WEAPON';">
         <div class="name">${winner.name}</div>
     `;
 
-    // Считаем точную координату остановки (центрируем маркер)
+    // Вычисляем точный центр для остановки маркера
     const wrapperWidth = document.querySelector('.roulette-wrapper').offsetWidth;
     const centerOffset = wrapperWidth / 2 - ITEM_WIDTH / 2;
-    const finalLeft = -(targetIndex * ITEM_WIDTH) + centerOffset;
+    const baseLeft = -(targetIndex * ITEM_WIDTH) + centerOffset;
 
-    // Запуск анимации CSS
-    tape.style.transition = 'left 4s cubic-bezier(0.1, 0.6, 0.1, 1)';
-    // Небольшой случайный сдвиг внутри карточки, чтобы стрелка не вставала идеально по центру
-    const microShift = Math.floor(Math.random() * 40) - 20; 
-    tape.style.left = (finalLeft + microShift) + 'px';
+    // Шаг 1: Быстрое и яростное кручение со случайным небольшим сдвигом
+    const microShift = Math.floor(Math.random() * 50) - 25; // Сдвиг от -25px до +25px
+    tape.style.transition = 'left 3.5s cubic-bezier(0.12, 0.8, 0.25, 1)'; 
+    tape.style.left = (baseLeft + microShift) + 'px';
 
-    // Показ модалки по окончании кручения
+    // Шаг 2: Эффект мягкого «возвращения» строго в центр предмета
     setTimeout(() => {
-        document.getElementById('winItemImage').src = winner.image;
+        // Меняем анимацию на очень плавную (0.5 секунды) и выравниваем left ровно по центру (без microShift)
+        tape.style.transition = 'left 0.5s ease-in-out';
+        tape.style.left = baseLeft + 'px';
+    }, 3500); // Срабатывает ровно в момент окончания основной прокрутки
+
+    // Шаг 3: Показываем модальное окно выигрыша, когда лента идеально отцентрирована
+    setTimeout(() => {
+        document.getElementById('winItemImage').src = winner.image || 'https://placehold.co/100x70/1c1c24/ffc600?text=WEAPON';
         document.getElementById('winItemName').innerText = winner.name;
         document.getElementById('winModal').classList.add('active');
 
-        // Сбрасываем состояние
+        // Сбрасываем флаг, чтобы можно было крутить снова
         isRolling = false;
         document.getElementById('btnOpen').disabled = false;
-        generateTape(items); // Возвращаем рулетку в исходное состояние
-    }, 4100);
+    }, 4100); // 3.5с (основное кручение) + 0.5с (центрирование) + 0.1с микро-пауза для эффекта
 }
 
-// Выбор предмета на основе процентов шанса
 function getWeightedRandomItem(items) {
     const totalChance = items.reduce((sum, item) => sum + parseFloat(item.chance || 0), 0);
     let randomNum = Math.random() * totalChance;
