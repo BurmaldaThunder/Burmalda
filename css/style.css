@@ -285,30 +285,41 @@ h1, h2, h3 {
     width: max-content; /* Чтобы лента не сжималась */
 }
 
-/* Карточка предмета внутри рулетки с закруглением */
+/* Карточка предмета внутри рулетки */
 .roulette-item {
-    width: 120px !important; /* Чистая ширина карточки */
+    width: 120px !important;
     min-width: 120px !important;
     max-width: 120px !important;
-    margin: 0 !important; /* Отступы запрещены, за них отвечает gap в #rouletteTape */
+    margin: 0 !important; 
     box-sizing: border-box;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
     
-    /* ВОЗВРАЩАЕМ ЗАКРУГЛЕНИЕ УГЛОВ */
+    /* 1. Настраиваем скругление углов для карточки */
     border-radius: 12px !important; 
-    overflow: hidden; /* Чтобы картинка внутри карточки не вылезала за скругленные края */
     
-    /* Если у тебя внутри карточек есть фон, можно его тоже подкрасить, например: */
+    /* 2. ЖЕЛЕЗОБЕТОННОЕ свойство: прячет всё, что вылезает за рамки скругления */
+    overflow: hidden !important; 
+    
     background: #14141c; 
     border: 1px solid #22222a;
 }
 
-/* На всякий случай, чтобы картинка внутри тоже красиво ложилась */
+/* Картинка внутри карточки */
 .roulette-item img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px; /* Чуть меньший радиус для самой картинки внутри */
-    padding: 5px;
+    width: 100% !important;   /* Растягиваем картинку на всю ширину карточки */
+    height: 90px !important;  /* Задаем фиксированную высоту под дизайн */
+    
+    /* 3. Магическое свойство: пропорционально масштабирует картинку внутри её блока, 
+       чтобы она не сжималась и не деформировалась */
+    object-fit: cover !important; 
+    
+    /* Убираем лишние внутренние отступы, если они принудительно выталкивали картинку */
+    padding: 0 !important; 
+    margin: 0 !important;
 }
 
 .roulette-item .name {
