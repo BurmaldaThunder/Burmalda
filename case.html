@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Открыть Кейс</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <img src="https://i.ibb.co/spCV2YY2/Gemini-Generated-Image-f25pief25pief25p-removebg-preview.png" alt="Logo">
+        </div>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="admin.html">Админка</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <div class="case-view-header">
+            <img id="caseImage" src="" alt="Case">
+            <h1 id="caseName" style="margin-top: 15px; font-size: 22px;">Название кейса</h1>
+        </div>
+
+        <div class="roulette-wrapper">
+            <div class="roulette-marker"></div>
+            <div class="roulette-tape" id="rouletteTape"></div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 50px;">
+            <button class="btn" id="btnOpen">Открыть кейс</button>
+        </div>
+
+        <h2 style="margin-bottom: 25px; font-size: 16px; color: #888896; text-transform: uppercase;">Содержимое кейса</h2>
+        <div class="cases-grid" id="caseItemsGrid">
+            </div>
+    </div>
+
+    <div class="modal-overlay" id="winModal">
+        <div class="win-modal" id="winModalCard">
+            <h3 style="color: var(--accent); margin: 0; text-transform: uppercase;">Поздравляем!</h3>
+            <img id="winItemImage" src="" alt="Drop">
+            <h2 id="winItemName">Предмет</h2>
+            <button class="btn" style="margin-top: 25px; width: 100%;" onclick="closeModal()">Отлично</button>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/case.js"></script>
+    <script>
+        function closeModal() {
+            document.getElementById('winModal').classList.remove('active');
+        }
+
+        // Логика нативной кнопки Назад в Telegram
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            
+            tg.BackButton.show();
+            tg.BackButton.onClick(() => {
+                window.location.href = 'index.html';
+            });
+        }
+    </script>
+</body>
+</html>

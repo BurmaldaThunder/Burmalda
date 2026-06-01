@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Панель управления — Админка</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <img src="https://i.ibb.co/spCV2YY2/Gemini-Generated-Image-f25pief25pief25p-removebg-preview.png" alt="Logo">
+        </div>
+        <nav>
+            <a href="index.html">Главная</a>
+            <a href="admin.html" class="active">Админка</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <h1 style="margin-bottom: 40px; font-size: 24px;">Управление сайтом</h1>
+        
+        <div class="admin-box">
+            <h3 style="margin-top: 0; margin-bottom: 25px; color: var(--accent);">Настройки рекламного баннера</h3>
+            
+            <label class="switch-container">
+                <input type="checkbox" id="bannerShow">
+                <span style="font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Показывать баннер</span>
+            </label>
+
+            <div id="bannerFormInputs" style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 20px;">
+                <div class="form-group">
+                    <label>Заголовок баннера</label>
+                    <input type="text" id="bannerTitle">
+                </div>
+                <div class="form-group">
+                    <label>Подтекст (описание)</label>
+                    <input type="text" id="bannerText">
+                </div>
+                <div class="form-group">
+                    <label>Текст на кнопке</label>
+                    <input type="text" id="bannerBtnText">
+                </div>
+                <div class="form-group">
+                    <label>Ссылка кнопки (URL или #)</label>
+                    <input type="text" id="bannerLink">
+                </div>
+                <div class="form-group">
+                    <label>URL Картинки баннера</label>
+                    <input type="text" id="bannerImage" placeholder="https://...">
+                </div>
+            </div>
+            <button class="btn btn-secondary" id="btnSaveBanner" style="margin-top: 20px; width: 100%;">Сохранить баннер</button>
+        </div>
+
+        <div class="admin-box">
+            <h3 style="margin-top: 0; margin-bottom: 20px; color: var(--accent);">Выберите действие с кейсом</h3>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <select id="caseSelector"></select>
+                <button class="btn btn-secondary" id="btnCreateNew">+ Создать новый кейс</button>
+            </div>
+        </div>
+
+        <div class="admin-box" id="editorSection" style="display: none;">
+            <h2 id="editorTitle" style="margin-top: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 25px; font-size: 18px;">Редактирование кейса</h2>
+            
+            <div style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 30px;">
+                <div class="form-group">
+                    <label>Название кейса</label>
+                    <input type="text" id="editCaseName" placeholder="Название">
+                </div>
+                <div class="form-group">
+                    <label>Цена открытия ($)</label>
+                    <input type="number" id="editCasePrice" placeholder="Цена">
+                </div>
+                <div class="form-group">
+                    <label>Изображение кейса (URL)</label>
+                    <input type="text" id="editCaseImage" placeholder="https://...">
+                </div>
+            </div>
+            
+            <h3 style="margin-bottom: 15px; color: #888896; font-size: 14px; text-transform: uppercase;">Предметы внутри кейса</h3>
+            
+            <div id="itemsContainer" style="overflow-x: auto;">
+                </div>
+
+            <div style="text-align: center; margin-top: 25px;">
+                <button class="btn btn-secondary" id="btnAddItem" style="width: 100%; border: 2px dashed #333; background: transparent; padding: 12px;">+ Добавить предмет</button>
+            </div>
+
+            <div style="margin-top: 40px; border-top: 1px solid var(--border-color); padding-top: 20px; display: flex; flex-direction: column; gap: 15px;">
+                <button class="btn" id="btnSaveCase" style="width: 100%;">Сохранить кейс</button>
+                <button class="btn btn-danger" id="btnDeleteCase" style="width: 100%;">Удалить этот кейс</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/storage.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        if (window.Telegram && window.Telegram.WebApp) {
+            const tg = window.Telegram.WebApp;
+            tg.ready();
+            tg.BackButton.show();
+            tg.BackButton.onClick(() => {
+                window.location.href = 'index.html';
+            });
+        }
+    </script>
+</body>
+</html>
